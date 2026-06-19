@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Demographics – RUM Mobile Application | ObserveOps</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ═══ TOKENS ═══════════════════════════════════════════════ */
+    :root {
+      --bg: #07101f;
+      --nav: #0c1a2e;
+      --panel: #0e2036;
+      --card: #11223a;
+      --card2: #0f1e33;
+      --border: #18304a;
+      --border2: #1e3a56;
+      --text: #c2d4e8;
+      --muted: #5272a0;
+      --dim: #2c4460;
+      --teal: #14b8a6;
+      --teal-glow: rgba(20, 184, 166, .16);
+      --teal2: rgba(20, 184, 166, .12);
+      --red: #e05050;
+      --orange: #f47c22;
+      --yellow: #f5c400;
+      --green: #2cc76a;
+      --blue: #008cff;
+      --purple: #8c5bd8;
+      --purple2: #b388e0;
+      --red-bg: rgba(224, 80, 80, .13);
+      --green-bg: rgba(44, 199, 106, .12);
+      --orange-bg: rgba(244, 124, 34, .13);
+      --yellow-bg: rgba(245, 196, 0, .12);
+      --blue-bg: rgba(0, 140, 255, .12);
+      --purple-bg: rgba(140, 91, 216, .14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: 'Inter', sans-serif; font-size: 12px;
+      background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased
+    }
+
+    a { text-decoration: none; color: inherit }
+
+    button { cursor: pointer; border: none; background: none; font-family: inherit; font-size: inherit; color: inherit; outline: none }
+
+    input, select { border: none; background: none; font-family: inherit; font-size: inherit; color: inherit; outline: none }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px }
+    ::-webkit-scrollbar-track { background: transparent }
+
+    svg { display: block; overflow: visible }
+
+    .mono { font-family: 'JetBrains Mono', monospace }
+
+    /* ═══ SHELL ════════════════════════════════════════════════ */
+    .shell { display: flex; flex-direction: column; height: 100vh }
+
+    .alert-banner {
+      flex-shrink: 0; background: var(--nav); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 6px 16px; gap: 10px
+    }
+    .alert-chip {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 4px;
+      background: var(--red-bg); border: 1px solid rgba(224, 80, 80, .35);
+      font-size: 10px; font-weight: 700; color: var(--red); letter-spacing: .3px; text-transform: uppercase
+    }
+    .alert-text { font-size: 11px; color: var(--muted) }
+    .alert-text strong { color: var(--text) }
+    .alert-x { margin-left: auto; font-size: 14px; color: var(--muted); line-height: 1; cursor: pointer }
+
+    /* TOPBAR */
+    .topbar { flex-shrink: 0; height: 42px; display: flex; align-items: center; background: var(--nav); border-bottom: 1px solid var(--border) }
+    .tb-logo { width: 178px; flex-shrink: 0; height: 100%; display: flex; align-items: center; gap: 9px; padding: 0 13px; border-right: 1px solid var(--border) }
+    .logo-box { width: 24px; height: 24px; border-radius: 6px; background: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0 }
+    .logo-box svg { width: 14px; height: 14px }
+    .logo-word { font-size: 13px; font-weight: 800; letter-spacing: -.4px; color: var(--text) }
+    .tb-crumb { display: flex; align-items: center; gap: 7px; padding: 0 14px; height: 100%; border-right: 1px solid var(--border) }
+    .tb-crumb svg { width: 13px; height: 13px; color: var(--teal) }
+    .tb-crumb-t { font-size: 12px; font-weight: 600; color: var(--text) }
+    .tb-crumb-s { font-size: 11px; color: var(--muted) }
+    .tb-tl { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 14px; overflow: hidden }
+    .range-pills { display: flex; background: var(--card); border: 1px solid var(--border2); border-radius: 6px; padding: 2px }
+    .rp { padding: 3px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 600; color: var(--muted) }
+    .rp.on { background: var(--teal); color: #fff }
+    .tb-dt { font-size: 9.5px; color: var(--muted); padding: 3px 8px; background: var(--card); border: 1px solid var(--border2); border-radius: 5px; white-space: nowrap }
+    .tb-right { display: flex; align-items: center; gap: 3px; padding: 0 10px }
+    .tb-ico { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); position: relative }
+    .tb-ico:hover { background: var(--card); color: var(--text) }
+    .tb-ico svg { width: 15px; height: 15px }
+    .badge { position: absolute; top: 2px; right: 0; background: var(--red); color: #fff; font-size: 7.5px; font-weight: 700; padding: 0 3px; border-radius: 6px; min-width: 14px; height: 13px; line-height: 13px; text-align: center; border: 1.5px solid var(--nav) }
+    .tb-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg, #14b8a6, #0891b2); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: 4px }
+
+    /* BODY ROW */
+    .body-row { display: flex; flex: 1; overflow: hidden }
+
+    /* ICON BAR */
+    .ibar { width: 40px; flex-shrink: 0; background: var(--nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 5px 0; gap: 1px }
+    .ib { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all .12s; position: relative }
+    .ib:hover { background: var(--card); color: var(--text) }
+    .ib.act { background: var(--teal-glow); color: var(--teal) }
+    .ib.act::before { content: ''; position: absolute; left: -5px; top: 7px; bottom: 7px; width: 2px; border-radius: 2px; background: var(--teal) }
+    .ib svg { width: 16px; height: 16px }
+    .ib-sp { flex: 1 }
+    .ib-line { width: 22px; height: 1px; background: var(--border); margin: 3px 0 }
+
+    /* TREE NAV */
+    .tnav { width: 222px; flex-shrink: 0; background: var(--nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden }
+    .tnav-hdr { display: flex; align-items: center; gap: 6px; padding: 9px 11px; border-bottom: 1px solid var(--border) }
+    .tnav-hdr-t { font-size: 11.5px; font-weight: 700; color: var(--text); flex: 1 }
+    .tnav-hdr-b { width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted) }
+    .tnav-hdr-b svg { width: 11px; height: 11px }
+    .tnav-srch { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border2); border-radius: 6px; padding: 5px 8px; margin: 8px 9px }
+    .tnav-srch svg { width: 11px; height: 11px; color: var(--muted); flex-shrink: 0 }
+    .tnav-srch input { font-size: 11px; width: 100%; color: var(--text) }
+    .tnav-srch input::placeholder { color: var(--muted) }
+    .tnav-body { flex: 1; overflow-y: auto; padding: 2px 0 10px }
+    .tn-grp { font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: 8px 11px 4px }
+    .app-item { display: flex; align-items: center; gap: 8px; padding: 6px 11px; cursor: pointer; border-left: 2px solid transparent }
+    .app-item:hover { background: var(--card) }
+    .app-item.act { background: var(--card); border-left-color: var(--teal) }
+    .app-ic { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 700 }
+    .app-ic.ios { background: #1c2733; color: #e8eef5 }
+    .app-ic.android { background: rgba(44, 199, 106, .14); color: var(--green) }
+    .app-ic.web { background: rgba(0, 140, 255, .13); color: var(--blue) }
+    .app-ic.flutter { background: rgba(0, 140, 255, .13); color: #54c5f8 }
+    .app-meta { flex: 1; min-width: 0 }
+    .app-nm { font-size: 11px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+    .app-sub { font-size: 9px; color: var(--muted); margin-top: 1px }
+    .app-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0 }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0 }
+    .chdr { flex-shrink: 0; height: 36px; display: flex; align-items: center; background: var(--nav); border-bottom: 1px solid var(--border); padding: 0 8px; gap: 2px; overflow-x: auto }
+    .ctab { height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; transition: all .12s; white-space: nowrap }
+    .ctab:hover { color: var(--text) }
+    .ctab.act { color: var(--teal); border-bottom-color: var(--teal) }
+    .ctab .cnt { font-size: 9px; font-family: 'JetBrains Mono', monospace; background: var(--card); padding: 1px 5px; border-radius: 8px; color: var(--muted) }
+
+    /* APP IDENTITY */
+    .ident { flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--panel) }
+    .ident-ic { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #14b8a6, #0891b2); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0 }
+    .ident-main { display: flex; flex-direction: column; gap: 3px }
+    .ident-row1 { display: flex; align-items: center; gap: 9px }
+    .ident-nm { font-size: 15px; font-weight: 700; color: var(--text) }
+    .plat-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--border2); color: var(--muted) }
+    .plat-chip svg { width: 11px; height: 11px }
+    .live { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--green) }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(44, 199, 106, .5); animation: pulse 1.8s infinite }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(44, 199, 106, .5) } 70% { box-shadow: 0 0 0 6px rgba(44, 199, 106, 0) } 100% { box-shadow: 0 0 0 0 rgba(44, 199, 106, 0) } }
+    .ident-sub { display: flex; align-items: center; gap: 10px; font-size: 10.5px; color: var(--muted) }
+    .ident-sub b { color: var(--text); font-weight: 600 }
+    .ident-sp { flex: 1 }
+    .sel { display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 7px; background: var(--card); border: 1px solid var(--border2); font-size: 11px; color: var(--text) }
+    .sel svg { width: 11px; height: 11px; color: var(--muted) }
+    .sel .lbl { color: var(--muted); font-size: 10px }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 14px 16px 40px }
+    .sec-h { display: flex; align-items: center; gap: 8px; margin: 20px 2px 9px }
+    .sec-h:first-child { margin-top: 0 }
+    .sec-h-t { font-size: 12px; font-weight: 700; color: var(--text) }
+    .sec-h-s { font-size: 10px; color: var(--muted) }
+    .sec-h-sp { flex: 1 }
+    .sec-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border2); background: var(--card); font-size: 10.5px; font-weight: 600; color: var(--muted) }
+    .sec-btn:hover { color: var(--text); border-color: var(--dim) }
+    .sec-btn.teal { background: var(--teal); color: #fff; border-color: var(--teal) }
+    .sec-btn svg { width: 12px; height: 12px }
+
+    /* ─── CARD VIEW (infographic) ─── */
+    .cv-wrap { display: grid; grid-template-columns: 1fr 150px 1fr; gap: 12px; align-items: stretch }
+    .cv-col { display: flex; flex-direction: column; gap: 12px }
+    .cv-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; position: relative; overflow: hidden }
+    .cv-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--purple) }
+    .cv-card.exp::before { background: var(--purple) }
+    .cv-card.crash::before { background: var(--red) }
+    .cv-card.web::before { background: var(--blue) }
+    .cv-card.svc::before { background: var(--teal) }
+    .cv-h { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding-bottom: 9px; margin-bottom: 11px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px }
+    .cv-h .dot { width: 6px; height: 6px; border-radius: 50% }
+    .cv-metrics { display: flex; gap: 22px }
+    .cv-m-ic { width: 15px; height: 15px; color: var(--muted) }
+    .cv-m-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px }
+    .cv-m-v { font-size: 19px; font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace }
+    .cv-m-l { font-size: 10px; color: var(--muted) }
+    .cv-spark { margin-top: 12px; display: flex; align-items: flex-end; gap: 9px }
+    .cv-spark-v { font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text) }
+    .cv-spark-l { font-size: 9.5px; color: var(--muted); margin-bottom: 2px }
+    .cv-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px }
+    .cv-people { width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, var(--purple-bg), transparent 70%); display: flex; align-items: center; justify-content: center }
+    .cv-people svg { width: 76px; height: 76px; color: var(--purple2) }
+    .svc-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 11px; color: var(--text) }
+    .svc-row .d { width: 6px; height: 6px; border-radius: 2px; background: var(--teal); flex-shrink: 0 }
+    .svc-row .rt { margin-left: auto; font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace }
+    .privacy-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--green) }
+    .privacy-pill svg { width: 15px; height: 15px }
+
+    /* ─── KPI STRIP ─── */
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px }
+    .kpi-l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 600 }
+    .kpi-v { font-size: 30px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-top: 6px; color: var(--blue) }
+    .kpi-v.green { color: var(--green) }
+    .kpi-v.red { color: var(--red) }
+
+    /* ─── GENERIC CARD GRID ─── */
+    .cards { display: grid; gap: 12px }
+    .c2 { grid-template-columns: 1fr 1fr }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px }
+    .card-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px }
+    .card-h-t { font-size: 12px; font-weight: 700; color: var(--text) }
+    .card-h-sp { flex: 1 }
+    .card-sub { font-size: 10px; color: var(--muted); margin-bottom: 12px }
+    .mini-tabs { display: inline-flex; background: var(--card2); border: 1px solid var(--border2); border-radius: 6px; padding: 2px; gap: 1px }
+    .mt { padding: 3px 9px; border-radius: 4px; font-size: 10px; font-weight: 600; color: var(--muted) }
+    .mt.on { background: var(--teal); color: #fff }
+    .chart { width: 100%; height: 150px }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 8px; font-size: 10px; color: var(--muted) }
+    .lg { display: inline-flex; align-items: center; gap: 5px }
+    .lg-dot { width: 9px; height: 9px; border-radius: 2px }
+
+    /* ─── TOP ACTIONS / TIME CONSUMED ─── */
+    .ta-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer }
+    .ta-row:last-child { border-bottom: none }
+    .ta-row:hover { background: rgba(140, 91, 216, .05) }
+    .ta-ic { width: 30px; height: 30px; border-radius: 7px; background: var(--purple-bg); color: var(--purple2); display: flex; align-items: center; justify-content: center; flex-shrink: 0 }
+    .ta-ic svg { width: 15px; height: 15px }
+    .ta-main { flex: 1; min-width: 0 }
+    .ta-nm { font-size: 11.5px; font-weight: 600; color: var(--text) }
+    .ta-bar-wrap { display: flex; align-items: center; gap: 8px; margin-top: 5px }
+    .ta-bar-lbl { font-size: 9px; color: var(--muted); width: 78px; flex-shrink: 0 }
+    .ta-bar { flex: 1; height: 7px; background: var(--card2); border-radius: 4px; overflow: hidden }
+    .ta-bar > i { display: block; height: 100%; background: linear-gradient(90deg, #8c5bd8, #b388e0); border-radius: 4px }
+    .ta-act { text-align: right; flex-shrink: 0 }
+    .ta-act-v { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text) }
+    .ta-act-l { font-size: 9px; color: var(--muted) }
+
+    /* ─── AVAILABILITY (P95) ─── */
+    .avail-top { display: flex; gap: 30px; margin-bottom: 14px }
+    .avail-stat .v { font-size: 20px; font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace }
+    .avail-stat .l { font-size: 10px; color: var(--muted) }
+    .avail-big { font-size: 30px; font-weight: 800; color: var(--green) }
+    .avail-track { height: 26px; border-radius: 6px; overflow: hidden; display: flex; background: var(--purple-bg) }
+    .avail-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted) }
+
+    /* ─── DATA PRIVACY ─── */
+    .priv-block { margin-bottom: 16px }
+    .priv-t { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px }
+    .priv-d { font-size: 10px; color: var(--muted); line-height: 1.5; margin-bottom: 9px }
+    .stack-bar { height: 18px; border-radius: 5px; overflow: hidden; display: flex }
+    .stack-bar > i { height: 100% }
+    .stack-leg { display: flex; gap: 16px; margin-top: 8px; font-size: 10px; color: var(--muted) }
+
+    /* ─── PVPS TABLE ─── */
+    table { width: 100%; border-collapse: collapse }
+    .tbl-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden }
+    th { font-size: 9.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--card2) }
+    th.num, td.num { text-align: right }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text) }
+    tr:last-child td { border-bottom: none }
+    tbody tr:hover { background: rgba(20, 184, 166, .04) }
+    .view-link { color: var(--blue); font-weight: 600 }
+    .vital { display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px }
+    .vital i { width: 3px; height: 13px; border-radius: 2px; flex-shrink: 0 }
+    .v-good i { background: var(--green) } .v-good { color: var(--green) }
+    .v-fair i { background: var(--yellow) } .v-fair { color: var(--yellow) }
+    .v-poor i { background: var(--orange) } .v-poor { color: var(--orange) }
+    .v-bad i { background: var(--red) } .v-bad { color: var(--red) }
+
+    /* ─── DRAWER ─── */
+    .drawer-ov { position: fixed; inset: 0; background: rgba(3, 8, 16, .55); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50 }
+    .drawer-ov.open { opacity: 1; pointer-events: auto }
+    .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 720px; max-width: 94vw; background: var(--panel); border-left: 1px solid var(--border2); transform: translateX(100%); transition: transform .24s cubic-bezier(.4, 0, .2, 1); z-index: 51; display: flex; flex-direction: column; box-shadow: -20px 0 60px rgba(0, 0, 0, .4) }
+    .drawer.open { transform: translateX(0) }
+    .drawer-hd { flex-shrink: 0; display: flex; align-items: center; gap: 11px; padding: 14px 18px; border-bottom: 1px solid var(--border) }
+    .drawer-hd-ic { width: 32px; height: 32px; border-radius: 8px; background: var(--purple-bg); color: var(--purple2); display: flex; align-items: center; justify-content: center; flex-shrink: 0 }
+    .drawer-hd-ic svg { width: 17px; height: 17px }
+    .drawer-hd-t { font-size: 14px; font-weight: 700; color: var(--text) }
+    .drawer-hd-s { font-size: 10.5px; color: var(--muted); margin-top: 2px }
+    .drawer-x { margin-left: auto; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); border: 1px solid var(--border2) }
+    .drawer-x:hover { color: var(--text); background: var(--card) }
+    .drawer-bd { flex: 1; overflow-y: auto; padding: 16px 18px 30px }
+    .tabbar { display: flex; background: var(--card2); border: 1px solid var(--border2); border-radius: 8px; padding: 3px; margin-bottom: 16px }
+    .tabbar .tb { flex: 1; text-align: center; padding: 7px; border-radius: 5px; font-size: 11px; font-weight: 600; color: var(--muted) }
+    .tabbar .tb.on { background: var(--blue); color: #fff }
+    .dwidget { margin-bottom: 18px }
+    .dwidget-t { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 10px }
+    .kv { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px dashed var(--border) }
+    .kv .k { color: var(--muted) } .kv .v { color: var(--text); font-weight: 600; font-family: 'JetBrains Mono', monospace }
+    .donut-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap }
+    .sat-leg { font-size: 11px; color: var(--text); display: flex; flex-direction: column; gap: 5px }
+    .sat-leg span { display: inline-flex; align-items: center; gap: 7px }
+    .sat-leg .sd { width: 9px; height: 9px; border-radius: 50% }
+    .err-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border) }
+    .err-nm { font-size: 11px; color: var(--blue); font-weight: 600 }
+    .err-cls { font-size: 9.5px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px }
+    .err-fq { font-size: 11px; color: var(--text); font-family: 'JetBrains Mono', monospace }
+
+    /* trace drawer */
+    .trace-bar { height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 9.5px; color: #fff; font-family: 'JetBrains Mono', monospace; margin-bottom: 5px; position: relative }
+    .badge-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 600 }
+    .status-200 { color: var(--green); background: var(--green-bg) }
+    .pill-method { background: var(--blue-bg); color: var(--blue); font-family: 'JetBrains Mono', monospace; font-weight: 700 }
+
+    /* ═══ DEMOGRAPHICS PAGE CSS ═══════════════════════════════ */
+    /* Type dropdown */
+    .typesel { position: relative }
+    .typesel .sel { cursor: pointer }
+    .type-menu {
+      position: absolute; top: calc(100% + 6px); right: 0; min-width: 220px; z-index: 30;
+      background: var(--panel); border: 1px solid var(--border2); border-radius: 9px;
+      padding: 5px; box-shadow: 0 18px 44px rgba(0, 0, 0, .5);
+      opacity: 0; pointer-events: none; transform: translateY(-4px); transition: all .14s
+    }
+    .typesel.open .type-menu { opacity: 1; pointer-events: auto; transform: translateY(0) }
+    .type-opt { padding: 7px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--text); cursor: pointer; white-space: nowrap }
+    .type-opt:hover { background: var(--card) }
+    .type-opt.on { background: var(--teal-glow); color: var(--teal); font-weight: 600 }
+
+    /* Map card */
+    .map-wrap { position: relative; width: 100%; height: 300px; background: radial-gradient(ellipse at 50% 42%, #0c2138, #0a182a 75%); border-radius: 8px; border: 1px solid var(--border); overflow: hidden }
+    .map-wrap svg { width: 100%; height: 100%; }
+    .map-land { fill: #14283f; stroke: #1c3958; stroke-width: .7 }
+    .map-leg { display: flex; flex-direction: column; gap: 9px; position: absolute; right: 14px; bottom: 16px; background: rgba(10, 22, 38, .72); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 12px }
+    .map-leg .lg { font-size: 10px; color: var(--text) }
+    .map-leg .lg-dot { width: 9px; height: 9px; border-radius: 50% }
+
+    /* Apdex trend chart */
+    .trend-wrap { position: relative; height: 270px; display: flex }
+    .trend-yaxis { width: 42px; flex-shrink: 0; position: relative; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted) }
+    .trend-yaxis span { position: absolute; right: 4px; transform: translateY(-50%) }
+    .trend-plot { flex: 1; position: relative; min-width: 0 }
+    .trend-plot svg { width: 100%; height: 240px }
+    .trend-band-lbl { position: absolute; left: 6px; font-size: 9.5px; font-weight: 600; transform: translateY(-50%); pointer-events: none }
+    .trend-xaxis { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 4px; padding-left: 42px }
+
+    /* Search box on table */
+    .tbl-search { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border2); border-radius: 7px; padding: 7px 11px; margin-bottom: 12px; max-width: 340px }
+    .tbl-search svg { width: 13px; height: 13px; color: var(--muted); flex-shrink: 0 }
+    .tbl-search input { font-size: 11.5px; width: 100%; color: var(--text) }
+    .tbl-search input::placeholder { color: var(--muted) }
+    .filt-btn { width: 32px; height: 32px; border-radius: 7px; border: 1px solid var(--border2); background: var(--card); display: inline-flex; align-items: center; justify-content: center; color: var(--muted); margin-left: auto }
+    .filt-btn:hover { color: var(--text) }
+    .filt-btn svg { width: 14px; height: 14px }
+
+    /* Pagination footer */
+    .pager { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--card2); font-size: 10.5px; color: var(--muted) }
+    .pg-btn { width: 24px; height: 24px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border2); color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10.5px }
+    .pg-btn:hover { color: var(--text); border-color: var(--dim) }
+    .pg-btn.on { background: var(--teal); color: #fff; border-color: var(--teal) }
+    .pg-btn.ghost { border-color: transparent }
+    .pg-per { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--border2); background: var(--card); color: var(--text); margin-left: 10px }
+    .pg-per svg { width: 10px; height: 10px; color: var(--muted) }
+    .pg-sp { flex: 1 }
+    .pg-info { font-family: 'JetBrains Mono', monospace; color: var(--muted) }
+
+    /* country apdex severity bar in table */
+    .apdex-cell { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px }
+    .apdex-cell i { width: 3px; height: 14px; border-radius: 2px; flex-shrink: 0 }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- ALERT -->
+    <div class="alert-banner">
+      <span class="alert-chip">⬤ Critical</span>
+      <span class="alert-text"><strong>Crash spike</strong> on Motadata Mobile · iOS <strong>v2.0</strong> —
+        crash-free users dropped to <strong>94.5%</strong> in the last 30 min</span>
+      <span class="alert-x">✕</span>
+    </div>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a class="tb-logo" href="#">
+        <div class="logo-box"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 13h4l3 7 4-16 3 9h4" stroke="#07101f" stroke-width="2.4" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg></div>
+        <span class="logo-word">ObserveOps</span>
+      </a>
+      <div class="tb-crumb">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        <span class="tb-crumb-t">Real User Monitoring</span>
+        <span class="tb-crumb-s">/ Mobile Application</span>
+      </div>
+      <div class="tb-tl">
+        <div class="range-pills">
+          <span class="rp">1h</span><span class="rp on">24h</span><span class="rp">7d</span><span class="rp">30d</span>
+        </div>
+        <span class="tb-dt mono">May 20, 2026 · 11:20 – Jun 18, 11:20 IST</span>
+      </div>
+      <div class="tb-right">
+        <div class="tb-ico"><svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8" />
+            <path d="m20 20-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="tb-ico"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9Z" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M10.3 21a1.9 1.9 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.8" />
+          </svg><span class="badge">7</span></div>
+        <div class="tb-avatar">RP</div>
+      </div>
+    </div>
+
+    <!-- BODY ROW -->
+    <div class="body-row">
+
+      <!-- ICON BAR -->
+      <div class="ibar">
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 19V9m5 10V5m5 14v-7m5 7V8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib-line"></div>
+        <div class="ib act"><svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8" />
+            <path d="M12 3v3m0 12v3M3 12h3m12 0h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <rect x="7" y="2" width="10" height="20" rx="2.4" stroke="currentColor" stroke-width="1.8" />
+            <path d="M11 18h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          </svg></div>
+        <div class="ib-sp"></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+            <path
+              d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.7.1-1Z"
+              stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          </svg></div>
+      </div>
+
+      <!-- TREE NAV -->
+      <div class="tnav">
+        <div class="tnav-hdr">
+          <span class="tnav-hdr-t">RUM Applications</span>
+          <div class="tnav-hdr-b" title="Register application"><svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            </svg></div>
+        </div>
+        <div class="tnav-srch">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <input placeholder="Search applications" />
+        </div>
+        <div class="tnav-body">
+          <div class="tn-grp">Mobile · 4</div>
+          <div class="app-item act">
+            <div class="app-ic ios"></div>
+            <div class="app-meta">
+              <div class="app-nm">Motadata Mobile</div>
+              <div class="app-sub">iOS · Android · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--red)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic android">A</div>
+            <div class="app-meta">
+              <div class="app-nm">FieldForce App</div>
+              <div class="app-sub">Android · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic flutter">F</div>
+            <div class="app-meta">
+              <div class="app-nm">Retail POS</div>
+              <div class="app-sub">Flutter · Staging</div>
+            </div>
+            <div class="app-dot" style="background:var(--yellow)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic ios"></div>
+            <div class="app-meta">
+              <div class="app-nm">Driver Companion</div>
+              <div class="app-sub">iOS · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="tn-grp">Web · 6</div>
+          <div class="app-item">
+            <div class="app-ic web">W</div>
+            <div class="app-meta">
+              <div class="app-nm">Customer Portal</div>
+              <div class="app-sub">React · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic web">W</div>
+            <div class="app-meta">
+              <div class="app-nm">Anytrade</div>
+              <div class="app-sub">JS · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--orange)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+
+        <!-- TABS (doc section order) -->
+        <div class="chdr">
+          <a class="ctab" href="mobile-overview.html">Overview</a>
+          <a class="ctab" href="browser.html">Web Request</a>
+          <a class="ctab" href="action-performance.html">Action Performance</a>
+          <a class="ctab act" href="demographics.html">Demographics</a>
+          <a class="ctab" href="sessions-replay.html">Sessions Replay</a>
+          <a class="ctab" href="sessions-explorer.html">Sessions Explorer <span class="cnt">175</span></a>
+          <a class="ctab" href="heat-map.html">Heat Map</a>
+        </div>
+
+        <!-- APP IDENTITY -->
+        <div class="ident">
+          <div class="ident-ic">M</div>
+          <div class="ident-main">
+            <div class="ident-row1">
+              <span class="ident-nm">Motadata Mobile</span>
+              <span class="plat-chip"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M16 1c-1.6.1-3.5 1.1-4.6 2.4-1 1.2-1.8 3-1.5 4.7 1.7.1 3.5-.9 4.6-2.2 1-1.2 1.7-3 1.5-4.9ZM20 17c-.5 1.2-.8 1.7-1.5 2.8-1 1.5-2.4 3.4-4.1 3.4-1.5 0-1.9-1-4-1-2 0-2.5 1-4 1-1.7 0-3-1.7-4-3.2-2.8-4.2-3.1-9.1-1.4-11.7 1.2-1.8 3.1-2.9 4.9-2.9 1.8 0 3 1 4.5 1 1.5 0 2.4-1 4.5-1 1.6 0 3.3.9 4.5 2.4-4 2.2-3.3 7.9.1 9.4Z" />
+                </svg> iOS</span>
+              <span class="plat-chip"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M6 9v8a1.5 1.5 0 0 0 1.5 1.5H8V22a1.2 1.2 0 0 0 2.4 0v-3.5h3.2V22a1.2 1.2 0 0 0 2.4 0v-3.5h.5A1.5 1.5 0 0 0 18 17V9H6Zm-2.3 0A1.2 1.2 0 0 0 2.5 10.2v5.1a1.2 1.2 0 0 0 2.4 0v-5.1A1.2 1.2 0 0 0 3.7 9Zm16.6 0a1.2 1.2 0 0 0-1.2 1.2v5.1a1.2 1.2 0 0 0 2.4 0v-5.1A1.2 1.2 0 0 0 20.3 9ZM15.7 3.3l1-1.6a.4.4 0 1 0-.7-.4l-1.1 1.7A6.6 6.6 0 0 0 12 2.4c-1 0-2 .2-2.9.6L8 1.3a.4.4 0 1 0-.7.4l1 1.6A5.5 5.5 0 0 0 6 7.8h12a5.5 5.5 0 0 0-2.3-4.5ZM9.6 5.9a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4Zm4.8 0a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4Z" />
+                </svg> Android</span>
+              <span class="live"><span class="live-dot"></span> Live · 1,284 active</span>
+            </div>
+            <div class="ident-sub">
+              <span>App ID <b class="mono">7</b></span>
+              <span>·</span>
+              <span><b>com.motadata.mobile</b></span>
+              <span>·</span>
+              <span>Session sample <b>100%</b></span>
+            </div>
+          </div>
+          <div class="ident-sp"></div>
+          <!-- TYPE METRIC SELECTOR -->
+          <div class="typesel" id="typesel">
+            <div class="sel" onclick="toggleType(event)">
+              <span class="lbl">Type</span> <b id="type-cur">Apdex Rating</b>
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="type-menu">
+              <div class="type-opt on" onclick="pickType(this)">Apdex Rating</div>
+              <div class="type-opt" onclick="pickType(this)">Loading Time</div>
+              <div class="type-opt" onclick="pickType(this)">Largest Contentful Paint</div>
+              <div class="type-opt" onclick="pickType(this)">First Contentful Paint</div>
+              <div class="type-opt" onclick="pickType(this)">Cumulative Layout Shift</div>
+              <div class="type-opt" onclick="pickType(this)">Interaction to Next Paint</div>
+              <div class="type-opt" onclick="pickType(this)">Error Count</div>
+              <div class="type-opt" onclick="pickType(this)">View Count</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+          <!-- ░░ ROW 1: MAP + TREND ░░ -->
+          <div class="cards c2">
+
+            <!-- Apdex Rating by Country (world map) -->
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">Apdex Rating by Country</span></div>
+              <div class="card-sub">Geographic distribution of user satisfaction · darker = no data</div>
+              <div class="map-wrap">
+                <svg viewBox="0 0 1000 480" preserveAspectRatio="xMidYMid meet">
+                  <!-- North America -->
+                  <path class="map-region" data-sev="bad" d="M70 70 L240 50 L290 95 L255 140 L300 165 L270 215 L210 250 L175 215 L155 165 L120 150 L95 110 Z"/>
+                  <!-- Greenland -->
+                  <path class="map-land" d="M315 30 L370 28 L388 70 L350 95 L320 70 Z"/>
+                  <!-- Central / South America -->
+                  <path class="map-region" data-sev="good" d="M235 270 L290 255 L320 300 L340 375 L300 440 L265 410 L255 350 L230 310 Z"/>
+                  <!-- Europe -->
+                  <path class="map-region" data-sev="poor" d="M455 90 L540 75 L560 110 L535 145 L495 160 L465 135 L450 110 Z"/>
+                  <!-- Africa -->
+                  <path class="map-region" data-sev="fair" d="M470 175 L560 165 L600 220 L590 310 L540 380 L495 340 L470 270 L460 215 Z"/>
+                  <!-- Middle East / West Asia -->
+                  <path class="map-region" data-sev="good" d="M575 150 L640 140 L665 185 L630 215 L590 200 Z"/>
+                  <!-- Russia / North Asia -->
+                  <path class="map-region" data-sev="excellent" d="M560 60 L820 45 L880 80 L840 120 L740 130 L650 120 L580 105 Z"/>
+                  <!-- India / South Asia -->
+                  <path class="map-region" data-sev="excellent" d="M650 225 L710 210 L735 255 L705 300 L670 285 L650 250 Z"/>
+                  <!-- East Asia / China-Japan -->
+                  <path class="map-region" data-sev="excellent" d="M745 150 L850 140 L890 190 L855 235 L790 240 L755 200 Z"/>
+                  <!-- SE Asia -->
+                  <path class="map-region" data-sev="good" d="M790 270 L850 262 L865 300 L825 330 L795 305 Z"/>
+                  <!-- Australia -->
+                  <path class="map-region" data-sev="good" d="M810 350 L905 340 L935 390 L890 430 L825 415 L805 380 Z"/>
+                  <!-- NZ -->
+                  <path class="map-region" data-sev="good" d="M945 420 L970 412 L975 440 L950 450 Z"/>
+                </svg>
+                <div class="map-leg">
+                  <span class="lg"><span class="lg-dot" style="background:var(--green)"></span> Excellent</span>
+                  <span class="lg"><span class="lg-dot" style="background:var(--yellow)"></span> Good</span>
+                  <span class="lg"><span class="lg-dot" style="background:var(--orange)"></span> Fair</span>
+                  <span class="lg"><span class="lg-dot" style="background:#e8743b"></span> Poor</span>
+                  <span class="lg"><span class="lg-dot" style="background:var(--red)"></span> Unacceptable</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Apdex Rating trend -->
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">Apdex Rating trend</span></div>
+              <div class="card-sub">User satisfaction over the last 24 hours · target ≥ 0.85</div>
+              <div class="trend-wrap">
+                <div class="trend-yaxis" id="trend-yaxis"></div>
+                <div class="trend-plot">
+                  <svg viewBox="0 0 660 240" preserveAspectRatio="none" id="trend-chart"></svg>
+                  <div class="trend-band-lbl" style="top:8%;color:var(--green)">Excellent</div>
+                  <div class="trend-band-lbl" style="top:26%;color:var(--green)">Good</div>
+                  <div class="trend-band-lbl" style="top:46%;color:var(--orange)">Fair</div>
+                  <div class="trend-band-lbl" style="top:64%;color:#e8743b">Poor</div>
+                  <div class="trend-band-lbl" style="top:86%;color:var(--red)">Unacceptable</div>
+                </div>
+              </div>
+              <div class="trend-xaxis">
+                <span>12:00</span><span>18:00</span><span>24:00</span><span>6:00</span><span>12:00</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ░░ ROW 2: COUNTRY TABLE ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Apdex Rating by Country</span>
+            <span class="sec-h-s">Per-country breakdown · click a row to inspect sessions</span>
+          </div>
+
+          <div class="tbl-search">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+              <path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <input placeholder="Search" />
+            <div class="filt-btn"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M3 5h18l-7 8v5l-4 2v-7L3 5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              </svg></div>
+          </div>
+
+          <div class="tbl-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Continent</th>
+                  <th>Apdex Rating</th>
+                  <th class="num">Session Count</th>
+                </tr>
+              </thead>
+              <tbody id="ctry-body"></tbody>
+            </table>
+            <div class="pager">
+              <span class="pg-btn ghost">⏮</span>
+              <span class="pg-btn ghost">‹</span>
+              <span class="pg-btn on">1</span>
+              <span class="pg-btn">2</span>
+              <span class="pg-btn">3</span>
+              <span style="padding:0 2px">…</span>
+              <span class="pg-btn ghost">›</span>
+              <span class="pg-btn ghost">⏭</span>
+              <span class="pg-per">50 <svg viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <span style="margin-left:6px">items per page</span>
+              <span class="pg-sp"></span>
+              <span class="pg-info">1 – 10 of 86 items</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ───── tiny SVG chart helpers ───── */
+    function rng(seed) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
+
+    /* ───── severity color map for the world map ───── */
+    const SEV = {
+      excellent: '#2cc76a',
+      good: '#f5c400',
+      fair: '#f47c22',
+      poor: '#e8743b',
+      bad: '#e05050'
+    };
+    document.querySelectorAll('.map-region').forEach(p => {
+      const sev = p.getAttribute('data-sev');
+      p.setAttribute('fill', SEV[sev] || '#14283f');
+      p.setAttribute('stroke', '#0a182a');
+      p.setAttribute('stroke-width', '1');
+      p.setAttribute('fill-opacity', '.9');
+    });
+
+    /* ───── Apdex trend area/line chart with severity bands ───── */
+    (function () {
+      const el = document.getElementById('trend-chart'); if (!el) return;
+      const W = 660, H = 240;
+      // severity bands (top=high apdex). bands: Excellent, Good, Fair, Poor, Unacceptable
+      const bands = [
+        { y: 0, h: H * .18, c: 'rgba(44,199,106,.10)' },     // Excellent .85+
+        { y: H * .18, h: H * .18, c: 'rgba(245,196,0,.08)' },// Good .70
+        { y: H * .36, h: H * .22, c: 'rgba(244,124,34,.07)' },// Fair
+        { y: H * .58, h: H * .20, c: 'rgba(232,116,59,.08)' },// Poor
+        { y: H * .78, h: H * .22, c: 'rgba(224,80,80,.10)' }  // Unacceptable
+      ];
+      let out = '';
+      bands.forEach(b => { out += `<rect x="0" y="${b.y}" width="${W}" height="${b.h}" fill="${b.c}"/>`; });
+      // dashed gridlines between bands
+      [.18, .36, .58, .78].forEach(f => {
+        out += `<line x1="0" y1="${H * f}" x2="${W}" y2="${H * f}" stroke="#18304a" stroke-width="1" stroke-dasharray="3 4"/>`;
+      });
+
+      // teal line: mostly sits LOW (poor/unacceptable apdex => low on chart => high y)
+      // with a couple of upward spikes toward the good band
+      const r = rng(29), n = 96; let pts = [];
+      for (let i = 0; i < n; i++) {
+        const x = i * (W / (n - 1));
+        // baseline low in the chart (poor band ~ y=.66H), small jitter
+        let y = H * .66 + r() * 16;
+        // a couple of upward spikes (apdex improves) near 30%, 70%, 92% of the width
+        const s1 = Math.exp(-Math.pow((i - n * .30) / 5, 2));
+        const s2 = Math.exp(-Math.pow((i - n * .70) / 4, 2));
+        const s3 = Math.exp(-Math.pow((i - n * .92) / 4.5, 2));
+        y -= s1 * (H * .40) + s2 * (H * .30) + s3 * (H * .52);
+        pts.push([x, Math.max(4, Math.min(H - 2, y))]);
+      }
+      const linePts = pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+      const areaPts = `0,${H} ` + linePts + ` ${W},${H}`;
+      out += `<polygon points="${areaPts}" fill="rgba(20,184,166,.10)"/>`;
+      out += `<polyline points="${linePts}" fill="none" stroke="#14b8a6" stroke-width="1.8" stroke-linejoin="round"/>`;
+      el.innerHTML = out;
+
+      // y-axis tick labels matching band boundaries
+      const ya = document.getElementById('trend-yaxis');
+      const ticks = [['0.99', 4], ['0.85', 18], ['0.70', 36], ['0.50', 58], ['0.20', 78], ['0.00', 99]];
+      ya.innerHTML = ticks.map(t => `<span style="top:${t[1]}%">${t[0]}</span>`).join('');
+    })();
+
+    /* ───── Country table ───── */
+    function apdexClass(v) {
+      if (v >= 0.85) return ['v-good', 'var(--green)'];
+      if (v >= 0.70) return ['v-fair', 'var(--yellow)'];
+      if (v >= 0.50) return ['v-poor', 'var(--orange)'];
+      return ['v-bad', 'var(--red)'];
+    }
+    const countries = [
+      ['India', 'Asia', 0.99, 5],
+      ['USA', 'North America', 0.40, 212],
+      ['Canada', 'North America', 0.85, 3],
+      ['Australia', 'Australia', 0.84, 143],
+      ['UK', 'Asia', 0.20, 545],
+      ['Japan', 'Asia', 0.98, 123],
+      ['France', 'North America', 0.46, 483],
+      ['Egypt', 'North America', 0.82, 785]
+    ];
+    document.getElementById('ctry-body').innerHTML = countries.map(c => {
+      const [cls, col] = apdexClass(c[2]);
+      return `<tr style="cursor:pointer">
+        <td><a class="view-link">${c[0]}</a></td>
+        <td style="color:var(--muted)">${c[1]}</td>
+        <td><span class="apdex-cell" style="color:${col}"><i style="background:${col}"></i>${c[2].toFixed(2)}</span></td>
+        <td class="num mono">${c[3]}</td>
+      </tr>`;
+    }).join('');
+
+    /* ───── Type dropdown ───── */
+    function toggleType(e) {
+      e.stopPropagation();
+      document.getElementById('typesel').classList.toggle('open');
+    }
+    function pickType(node) {
+      node.parentNode.querySelectorAll('.type-opt').forEach(o => o.classList.remove('on'));
+      node.classList.add('on');
+      document.getElementById('type-cur').textContent = node.textContent;
+      document.getElementById('typesel').classList.remove('open');
+    }
+    document.addEventListener('click', () => document.getElementById('typesel').classList.remove('open'));
+
+    /* ───── misc handlers (parity with template) ───── */
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('typesel').classList.remove('open'); });
+    document.querySelector('.alert-x').onclick = function () { this.closest('.alert-banner').style.display = 'none'; };
+  </script>
+</body>
+
+</html>

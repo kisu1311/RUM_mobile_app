@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Overview – RUM Mobile Application | ObserveOps</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ═══ TOKENS ═══════════════════════════════════════════════ */
+    :root {
+      --bg: #07101f;
+      --nav: #0c1a2e;
+      --panel: #0e2036;
+      --card: #11223a;
+      --card2: #0f1e33;
+      --border: #18304a;
+      --border2: #1e3a56;
+      --text: #c2d4e8;
+      --muted: #5272a0;
+      --dim: #2c4460;
+      --teal: #14b8a6;
+      --teal-glow: rgba(20, 184, 166, .16);
+      --teal2: rgba(20, 184, 166, .12);
+      --red: #e05050;
+      --orange: #f47c22;
+      --yellow: #f5c400;
+      --green: #2cc76a;
+      --blue: #008cff;
+      --purple: #8c5bd8;
+      --purple2: #b388e0;
+      --red-bg: rgba(224, 80, 80, .13);
+      --green-bg: rgba(44, 199, 106, .12);
+      --orange-bg: rgba(244, 124, 34, .13);
+      --yellow-bg: rgba(245, 196, 0, .12);
+      --blue-bg: rgba(0, 140, 255, .12);
+      --purple-bg: rgba(140, 91, 216, .14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: 'Inter', sans-serif; font-size: 12px;
+      background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased
+    }
+
+    a { text-decoration: none; color: inherit }
+
+    button { cursor: pointer; border: none; background: none; font-family: inherit; font-size: inherit; color: inherit; outline: none }
+
+    input, select { border: none; background: none; font-family: inherit; font-size: inherit; color: inherit; outline: none }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px }
+    ::-webkit-scrollbar-track { background: transparent }
+
+    svg { display: block; overflow: visible }
+
+    .mono { font-family: 'JetBrains Mono', monospace }
+
+    /* ═══ SHELL ════════════════════════════════════════════════ */
+    .shell { display: flex; flex-direction: column; height: 100vh }
+
+    .alert-banner {
+      flex-shrink: 0; background: var(--nav); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 6px 16px; gap: 10px
+    }
+    .alert-chip {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 4px;
+      background: var(--red-bg); border: 1px solid rgba(224, 80, 80, .35);
+      font-size: 10px; font-weight: 700; color: var(--red); letter-spacing: .3px; text-transform: uppercase
+    }
+    .alert-text { font-size: 11px; color: var(--muted) }
+    .alert-text strong { color: var(--text) }
+    .alert-x { margin-left: auto; font-size: 14px; color: var(--muted); line-height: 1; cursor: pointer }
+
+    /* TOPBAR */
+    .topbar { flex-shrink: 0; height: 42px; display: flex; align-items: center; background: var(--nav); border-bottom: 1px solid var(--border) }
+    .tb-logo { width: 178px; flex-shrink: 0; height: 100%; display: flex; align-items: center; gap: 9px; padding: 0 13px; border-right: 1px solid var(--border) }
+    .logo-box { width: 24px; height: 24px; border-radius: 6px; background: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0 }
+    .logo-box svg { width: 14px; height: 14px }
+    .logo-word { font-size: 13px; font-weight: 800; letter-spacing: -.4px; color: var(--text) }
+    .tb-crumb { display: flex; align-items: center; gap: 7px; padding: 0 14px; height: 100%; border-right: 1px solid var(--border) }
+    .tb-crumb svg { width: 13px; height: 13px; color: var(--teal) }
+    .tb-crumb-t { font-size: 12px; font-weight: 600; color: var(--text) }
+    .tb-crumb-s { font-size: 11px; color: var(--muted) }
+    .tb-tl { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 14px; overflow: hidden }
+    .range-pills { display: flex; background: var(--card); border: 1px solid var(--border2); border-radius: 6px; padding: 2px }
+    .rp { padding: 3px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 600; color: var(--muted) }
+    .rp.on { background: var(--teal); color: #fff }
+    .tb-dt { font-size: 9.5px; color: var(--muted); padding: 3px 8px; background: var(--card); border: 1px solid var(--border2); border-radius: 5px; white-space: nowrap }
+    .tb-right { display: flex; align-items: center; gap: 3px; padding: 0 10px }
+    .tb-ico { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); position: relative }
+    .tb-ico:hover { background: var(--card); color: var(--text) }
+    .tb-ico svg { width: 15px; height: 15px }
+    .badge { position: absolute; top: 2px; right: 0; background: var(--red); color: #fff; font-size: 7.5px; font-weight: 700; padding: 0 3px; border-radius: 6px; min-width: 14px; height: 13px; line-height: 13px; text-align: center; border: 1.5px solid var(--nav) }
+    .tb-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg, #14b8a6, #0891b2); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: 4px }
+
+    /* BODY ROW */
+    .body-row { display: flex; flex: 1; overflow: hidden }
+
+    /* ICON BAR */
+    .ibar { width: 40px; flex-shrink: 0; background: var(--nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 5px 0; gap: 1px }
+    .ib { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all .12s; position: relative }
+    .ib:hover { background: var(--card); color: var(--text) }
+    .ib.act { background: var(--teal-glow); color: var(--teal) }
+    .ib.act::before { content: ''; position: absolute; left: -5px; top: 7px; bottom: 7px; width: 2px; border-radius: 2px; background: var(--teal) }
+    .ib svg { width: 16px; height: 16px }
+    .ib-sp { flex: 1 }
+    .ib-line { width: 22px; height: 1px; background: var(--border); margin: 3px 0 }
+
+    /* TREE NAV */
+    .tnav { width: 222px; flex-shrink: 0; background: var(--nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden }
+    .tnav-hdr { display: flex; align-items: center; gap: 6px; padding: 9px 11px; border-bottom: 1px solid var(--border) }
+    .tnav-hdr-t { font-size: 11.5px; font-weight: 700; color: var(--text); flex: 1 }
+    .tnav-hdr-b { width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; color: var(--muted) }
+    .tnav-hdr-b svg { width: 11px; height: 11px }
+    .tnav-srch { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border2); border-radius: 6px; padding: 5px 8px; margin: 8px 9px }
+    .tnav-srch svg { width: 11px; height: 11px; color: var(--muted); flex-shrink: 0 }
+    .tnav-srch input { font-size: 11px; width: 100%; color: var(--text) }
+    .tnav-srch input::placeholder { color: var(--muted) }
+    .tnav-body { flex: 1; overflow-y: auto; padding: 2px 0 10px }
+    .tn-grp { font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: 8px 11px 4px }
+    .app-item { display: flex; align-items: center; gap: 8px; padding: 6px 11px; cursor: pointer; border-left: 2px solid transparent }
+    .app-item:hover { background: var(--card) }
+    .app-item.act { background: var(--card); border-left-color: var(--teal) }
+    .app-ic { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 700 }
+    .app-ic.ios { background: #1c2733; color: #e8eef5 }
+    .app-ic.android { background: rgba(44, 199, 106, .14); color: var(--green) }
+    .app-ic.web { background: rgba(0, 140, 255, .13); color: var(--blue) }
+    .app-ic.flutter { background: rgba(0, 140, 255, .13); color: #54c5f8 }
+    .app-meta { flex: 1; min-width: 0 }
+    .app-nm { font-size: 11px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+    .app-sub { font-size: 9px; color: var(--muted); margin-top: 1px }
+    .app-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0 }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0 }
+    .chdr { flex-shrink: 0; height: 36px; display: flex; align-items: center; background: var(--nav); border-bottom: 1px solid var(--border); padding: 0 8px; gap: 2px; overflow-x: auto }
+    .ctab { height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; transition: all .12s; white-space: nowrap }
+    .ctab:hover { color: var(--text) }
+    .ctab.act { color: var(--teal); border-bottom-color: var(--teal) }
+    .ctab .cnt { font-size: 9px; font-family: 'JetBrains Mono', monospace; background: var(--card); padding: 1px 5px; border-radius: 8px; color: var(--muted) }
+
+    /* APP IDENTITY */
+    .ident { flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--panel) }
+    .ident-ic { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #14b8a6, #0891b2); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0 }
+    .ident-main { display: flex; flex-direction: column; gap: 3px }
+    .ident-row1 { display: flex; align-items: center; gap: 9px }
+    .ident-nm { font-size: 15px; font-weight: 700; color: var(--text) }
+    .plat-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--border2); color: var(--muted) }
+    .plat-chip svg { width: 11px; height: 11px }
+    .live { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--green) }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(44, 199, 106, .5); animation: pulse 1.8s infinite }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(44, 199, 106, .5) } 70% { box-shadow: 0 0 0 6px rgba(44, 199, 106, 0) } 100% { box-shadow: 0 0 0 0 rgba(44, 199, 106, 0) } }
+    .ident-sub { display: flex; align-items: center; gap: 10px; font-size: 10.5px; color: var(--muted) }
+    .ident-sub b { color: var(--text); font-weight: 600 }
+    .ident-sp { flex: 1 }
+    .sel { display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 7px; background: var(--card); border: 1px solid var(--border2); font-size: 11px; color: var(--text) }
+    .sel svg { width: 11px; height: 11px; color: var(--muted) }
+    .sel .lbl { color: var(--muted); font-size: 10px }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 14px 16px 40px }
+    .sec-h { display: flex; align-items: center; gap: 8px; margin: 20px 2px 9px }
+    .sec-h:first-child { margin-top: 0 }
+    .sec-h-t { font-size: 12px; font-weight: 700; color: var(--text) }
+    .sec-h-s { font-size: 10px; color: var(--muted) }
+    .sec-h-sp { flex: 1 }
+    .sec-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border2); background: var(--card); font-size: 10.5px; font-weight: 600; color: var(--muted) }
+    .sec-btn:hover { color: var(--text); border-color: var(--dim) }
+    .sec-btn.teal { background: var(--teal); color: #fff; border-color: var(--teal) }
+    .sec-btn svg { width: 12px; height: 12px }
+
+    /* ─── CARD VIEW (infographic) ─── */
+    .cv-wrap { display: grid; grid-template-columns: 1fr 150px 1fr; gap: 12px; align-items: stretch }
+    .cv-col { display: flex; flex-direction: column; gap: 12px }
+    .cv-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; position: relative; overflow: hidden }
+    .cv-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--purple) }
+    .cv-card.exp::before { background: var(--purple) }
+    .cv-card.crash::before { background: var(--red) }
+    .cv-card.web::before { background: var(--blue) }
+    .cv-card.svc::before { background: var(--teal) }
+    .cv-h { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding-bottom: 9px; margin-bottom: 11px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px }
+    .cv-h .dot { width: 6px; height: 6px; border-radius: 50% }
+    .cv-metrics { display: flex; gap: 22px }
+    .cv-m-ic { width: 15px; height: 15px; color: var(--muted) }
+    .cv-m-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px }
+    .cv-m-v { font-size: 19px; font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace }
+    .cv-m-l { font-size: 10px; color: var(--muted) }
+    .cv-spark { margin-top: 12px; display: flex; align-items: flex-end; gap: 9px }
+    .cv-spark-v { font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text) }
+    .cv-spark-l { font-size: 9.5px; color: var(--muted); margin-bottom: 2px }
+    .cv-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px }
+    .cv-people { width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, var(--purple-bg), transparent 70%); display: flex; align-items: center; justify-content: center }
+    .cv-people svg { width: 76px; height: 76px; color: var(--purple2) }
+    .svc-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 11px; color: var(--text) }
+    .svc-row .d { width: 6px; height: 6px; border-radius: 2px; background: var(--teal); flex-shrink: 0 }
+    .svc-row .rt { margin-left: auto; font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace }
+    .privacy-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--green) }
+    .privacy-pill svg { width: 15px; height: 15px }
+
+    /* ─── KPI STRIP ─── */
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px }
+    .kpi-l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 600 }
+    .kpi-v { font-size: 30px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-top: 6px; color: var(--blue) }
+    .kpi-v.green { color: var(--green) }
+    .kpi-v.red { color: var(--red) }
+
+    /* ─── GENERIC CARD GRID ─── */
+    .cards { display: grid; gap: 12px }
+    .c2 { grid-template-columns: 1fr 1fr }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px }
+    .card-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px }
+    .card-h-t { font-size: 12px; font-weight: 700; color: var(--text) }
+    .card-h-sp { flex: 1 }
+    .card-sub { font-size: 10px; color: var(--muted); margin-bottom: 12px }
+    .mini-tabs { display: inline-flex; background: var(--card2); border: 1px solid var(--border2); border-radius: 6px; padding: 2px; gap: 1px }
+    .mt { padding: 3px 9px; border-radius: 4px; font-size: 10px; font-weight: 600; color: var(--muted) }
+    .mt.on { background: var(--teal); color: #fff }
+    .chart { width: 100%; height: 150px }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 8px; font-size: 10px; color: var(--muted) }
+    .lg { display: inline-flex; align-items: center; gap: 5px }
+    .lg-dot { width: 9px; height: 9px; border-radius: 2px }
+
+    /* ─── TOP ACTIONS / TIME CONSUMED ─── */
+    .ta-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer }
+    .ta-row:last-child { border-bottom: none }
+    .ta-row:hover { background: rgba(140, 91, 216, .05) }
+    .ta-ic { width: 30px; height: 30px; border-radius: 7px; background: var(--purple-bg); color: var(--purple2); display: flex; align-items: center; justify-content: center; flex-shrink: 0 }
+    .ta-ic svg { width: 15px; height: 15px }
+    .ta-main { flex: 1; min-width: 0 }
+    .ta-nm { font-size: 11.5px; font-weight: 600; color: var(--text) }
+    .ta-bar-wrap { display: flex; align-items: center; gap: 8px; margin-top: 5px }
+    .ta-bar-lbl { font-size: 9px; color: var(--muted); width: 78px; flex-shrink: 0 }
+    .ta-bar { flex: 1; height: 7px; background: var(--card2); border-radius: 4px; overflow: hidden }
+    .ta-bar > i { display: block; height: 100%; background: linear-gradient(90deg, #8c5bd8, #b388e0); border-radius: 4px }
+    .ta-act { text-align: right; flex-shrink: 0 }
+    .ta-act-v { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text) }
+    .ta-act-l { font-size: 9px; color: var(--muted) }
+
+    /* ─── AVAILABILITY (P95) ─── */
+    .avail-top { display: flex; gap: 30px; margin-bottom: 14px }
+    .avail-stat .v { font-size: 20px; font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace }
+    .avail-stat .l { font-size: 10px; color: var(--muted) }
+    .avail-big { font-size: 30px; font-weight: 800; color: var(--green) }
+    .avail-track { height: 26px; border-radius: 6px; overflow: hidden; display: flex; background: var(--purple-bg) }
+    .avail-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted) }
+
+    /* ─── DATA PRIVACY ─── */
+    .priv-block { margin-bottom: 16px }
+    .priv-t { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px }
+    .priv-d { font-size: 10px; color: var(--muted); line-height: 1.5; margin-bottom: 9px }
+    .stack-bar { height: 18px; border-radius: 5px; overflow: hidden; display: flex }
+    .stack-bar > i { height: 100% }
+    .stack-leg { display: flex; gap: 16px; margin-top: 8px; font-size: 10px; color: var(--muted) }
+
+    /* ─── PVPS TABLE ─── */
+    table { width: 100%; border-collapse: collapse }
+    .tbl-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden }
+    th { font-size: 9.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--card2) }
+    th.num, td.num { text-align: right }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text) }
+    tr:last-child td { border-bottom: none }
+    tbody tr:hover { background: rgba(20, 184, 166, .04) }
+    .view-link { color: var(--blue); font-weight: 600 }
+    .vital { display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px }
+    .vital i { width: 3px; height: 13px; border-radius: 2px; flex-shrink: 0 }
+    .v-good i { background: var(--green) } .v-good { color: var(--green) }
+    .v-fair i { background: var(--yellow) } .v-fair { color: var(--yellow) }
+    .v-poor i { background: var(--orange) } .v-poor { color: var(--orange) }
+    .v-bad i { background: var(--red) } .v-bad { color: var(--red) }
+
+    /* ─── DRAWER ─── */
+    .drawer-ov { position: fixed; inset: 0; background: rgba(3, 8, 16, .55); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50 }
+    .drawer-ov.open { opacity: 1; pointer-events: auto }
+    .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 720px; max-width: 94vw; background: var(--panel); border-left: 1px solid var(--border2); transform: translateX(100%); transition: transform .24s cubic-bezier(.4, 0, .2, 1); z-index: 51; display: flex; flex-direction: column; box-shadow: -20px 0 60px rgba(0, 0, 0, .4) }
+    .drawer.open { transform: translateX(0) }
+    .drawer-hd { flex-shrink: 0; display: flex; align-items: center; gap: 11px; padding: 14px 18px; border-bottom: 1px solid var(--border) }
+    .drawer-hd-ic { width: 32px; height: 32px; border-radius: 8px; background: var(--purple-bg); color: var(--purple2); display: flex; align-items: center; justify-content: center; flex-shrink: 0 }
+    .drawer-hd-ic svg { width: 17px; height: 17px }
+    .drawer-hd-t { font-size: 14px; font-weight: 700; color: var(--text) }
+    .drawer-hd-s { font-size: 10.5px; color: var(--muted); margin-top: 2px }
+    .drawer-x { margin-left: auto; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); border: 1px solid var(--border2) }
+    .drawer-x:hover { color: var(--text); background: var(--card) }
+    .drawer-bd { flex: 1; overflow-y: auto; padding: 16px 18px 30px }
+    .tabbar { display: flex; background: var(--card2); border: 1px solid var(--border2); border-radius: 8px; padding: 3px; margin-bottom: 16px }
+    .tabbar .tb { flex: 1; text-align: center; padding: 7px; border-radius: 5px; font-size: 11px; font-weight: 600; color: var(--muted) }
+    .tabbar .tb.on { background: var(--blue); color: #fff }
+    .dwidget { margin-bottom: 18px }
+    .dwidget-t { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 10px }
+    .kv { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px dashed var(--border) }
+    .kv .k { color: var(--muted) } .kv .v { color: var(--text); font-weight: 600; font-family: 'JetBrains Mono', monospace }
+    .donut-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap }
+    .sat-leg { font-size: 11px; color: var(--text); display: flex; flex-direction: column; gap: 5px }
+    .sat-leg span { display: inline-flex; align-items: center; gap: 7px }
+    .sat-leg .sd { width: 9px; height: 9px; border-radius: 50% }
+    .err-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border) }
+    .err-nm { font-size: 11px; color: var(--blue); font-weight: 600 }
+    .err-cls { font-size: 9.5px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px }
+    .err-fq { font-size: 11px; color: var(--text); font-family: 'JetBrains Mono', monospace }
+
+    /* trace drawer */
+    .trace-bar { height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 9.5px; color: #fff; font-family: 'JetBrains Mono', monospace; margin-bottom: 5px; position: relative }
+    .badge-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 600 }
+    .status-200 { color: var(--green); background: var(--green-bg) }
+    .pill-method { background: var(--blue-bg); color: var(--blue); font-family: 'JetBrains Mono', monospace; font-weight: 700 }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- ALERT -->
+    <div class="alert-banner">
+      <span class="alert-chip">⬤ Critical</span>
+      <span class="alert-text"><strong>Crash spike</strong> on Motadata Mobile · iOS <strong>v2.0</strong> —
+        crash-free users dropped to <strong>94.5%</strong> in the last 30 min</span>
+      <span class="alert-x">✕</span>
+    </div>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a class="tb-logo" href="#">
+        <div class="logo-box"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 13h4l3 7 4-16 3 9h4" stroke="#07101f" stroke-width="2.4" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg></div>
+        <span class="logo-word">ObserveOps</span>
+      </a>
+      <div class="tb-crumb">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        <span class="tb-crumb-t">Real User Monitoring</span>
+        <span class="tb-crumb-s">/ Mobile Application</span>
+      </div>
+      <div class="tb-tl">
+        <div class="range-pills">
+          <span class="rp">1h</span><span class="rp on">24h</span><span class="rp">7d</span><span class="rp">30d</span>
+        </div>
+        <span class="tb-dt mono">May 20, 2026 · 11:20 – Jun 18, 11:20 IST</span>
+      </div>
+      <div class="tb-right">
+        <div class="tb-ico"><svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8" />
+            <path d="m20 20-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="tb-ico"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9Z" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M10.3 21a1.9 1.9 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.8" />
+          </svg><span class="badge">7</span></div>
+        <div class="tb-avatar">RP</div>
+      </div>
+    </div>
+
+    <!-- BODY ROW -->
+    <div class="body-row">
+
+      <!-- ICON BAR -->
+      <div class="ibar">
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 19V9m5 10V5m5 14v-7m5 7V8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib-line"></div>
+        <div class="ib act"><svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8" />
+            <path d="M12 3v3m0 12v3M3 12h3m12 0h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <rect x="7" y="2" width="10" height="20" rx="2.4" stroke="currentColor" stroke-width="1.8" />
+            <path d="M11 18h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          </svg></div>
+        <div class="ib-sp"></div>
+        <div class="ib"><svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+            <path
+              d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.7.1-1Z"
+              stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          </svg></div>
+      </div>
+
+      <!-- TREE NAV -->
+      <div class="tnav">
+        <div class="tnav-hdr">
+          <span class="tnav-hdr-t">RUM Applications</span>
+          <div class="tnav-hdr-b" title="Register application"><svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            </svg></div>
+        </div>
+        <div class="tnav-srch">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <input placeholder="Search applications" />
+        </div>
+        <div class="tnav-body">
+          <div class="tn-grp">Mobile · 4</div>
+          <div class="app-item act">
+            <div class="app-ic ios"></div>
+            <div class="app-meta">
+              <div class="app-nm">Motadata Mobile</div>
+              <div class="app-sub">iOS · Android · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--red)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic android">A</div>
+            <div class="app-meta">
+              <div class="app-nm">FieldForce App</div>
+              <div class="app-sub">Android · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic flutter">F</div>
+            <div class="app-meta">
+              <div class="app-nm">Retail POS</div>
+              <div class="app-sub">Flutter · Staging</div>
+            </div>
+            <div class="app-dot" style="background:var(--yellow)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic ios"></div>
+            <div class="app-meta">
+              <div class="app-nm">Driver Companion</div>
+              <div class="app-sub">iOS · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="tn-grp">Web · 6</div>
+          <div class="app-item">
+            <div class="app-ic web">W</div>
+            <div class="app-meta">
+              <div class="app-nm">Customer Portal</div>
+              <div class="app-sub">React · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="app-item">
+            <div class="app-ic web">W</div>
+            <div class="app-meta">
+              <div class="app-nm">Anytrade</div>
+              <div class="app-sub">JS · Prod</div>
+            </div>
+            <div class="app-dot" style="background:var(--orange)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+
+        <!-- TABS (doc section order) -->
+        <div class="chdr">
+          <a class="ctab act" href="mobile-overview.html">Overview</a>
+          <a class="ctab" href="browser.html">Web Request</a>
+          <a class="ctab" href="action-performance.html">Action Performance</a>
+          <a class="ctab" href="demographics.html">Demographics</a>
+          <a class="ctab" href="sessions-replay.html">Sessions Replay</a>
+          <a class="ctab" href="sessions-explorer.html">Sessions Explorer <span class="cnt">175</span></a>
+          <a class="ctab" href="heat-map.html">Heat Map</a>
+        </div>
+
+        <!-- APP IDENTITY -->
+        <div class="ident">
+          <div class="ident-ic">M</div>
+          <div class="ident-main">
+            <div class="ident-row1">
+              <span class="ident-nm">Motadata Mobile</span>
+              <span class="plat-chip"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M16 1c-1.6.1-3.5 1.1-4.6 2.4-1 1.2-1.8 3-1.5 4.7 1.7.1 3.5-.9 4.6-2.2 1-1.2 1.7-3 1.5-4.9ZM20 17c-.5 1.2-.8 1.7-1.5 2.8-1 1.5-2.4 3.4-4.1 3.4-1.5 0-1.9-1-4-1-2 0-2.5 1-4 1-1.7 0-3-1.7-4-3.2-2.8-4.2-3.1-9.1-1.4-11.7 1.2-1.8 3.1-2.9 4.9-2.9 1.8 0 3 1 4.5 1 1.5 0 2.4-1 4.5-1 1.6 0 3.3.9 4.5 2.4-4 2.2-3.3 7.9.1 9.4Z" />
+                </svg> iOS</span>
+              <span class="plat-chip"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M6 9v8a1.5 1.5 0 0 0 1.5 1.5H8V22a1.2 1.2 0 0 0 2.4 0v-3.5h3.2V22a1.2 1.2 0 0 0 2.4 0v-3.5h.5A1.5 1.5 0 0 0 18 17V9H6Zm-2.3 0A1.2 1.2 0 0 0 2.5 10.2v5.1a1.2 1.2 0 0 0 2.4 0v-5.1A1.2 1.2 0 0 0 3.7 9Zm16.6 0a1.2 1.2 0 0 0-1.2 1.2v5.1a1.2 1.2 0 0 0 2.4 0v-5.1A1.2 1.2 0 0 0 20.3 9ZM15.7 3.3l1-1.6a.4.4 0 1 0-.7-.4l-1.1 1.7A6.6 6.6 0 0 0 12 2.4c-1 0-2 .2-2.9.6L8 1.3a.4.4 0 1 0-.7.4l1 1.6A5.5 5.5 0 0 0 6 7.8h12a5.5 5.5 0 0 0-2.3-4.5ZM9.6 5.9a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4Zm4.8 0a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4Z" />
+                </svg> Android</span>
+              <span class="live"><span class="live-dot"></span> Live · 1,284 active</span>
+            </div>
+            <div class="ident-sub">
+              <span>App ID <b class="mono">7</b></span>
+              <span>·</span>
+              <span><b>com.motadata.mobile</b></span>
+              <span>·</span>
+              <span>Session sample <b>100%</b></span>
+            </div>
+          </div>
+          <div class="ident-sp"></div>
+          <div class="sel"><span class="lbl">Version</span> <b class="mono">v2.0</b> <svg viewBox="0 0 24 24"
+              fill="none">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg></div>
+          <div class="sel"><span class="lbl">Env</span> Production <svg viewBox="0 0 24 24" fill="none">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg></div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+          <!-- ░░ CARD VIEW (infographic) ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Application Health</span>
+            <span class="sec-h-s">Mobile app · Android, Windows, iOS</span>
+          </div>
+          <div class="cv-wrap">
+            <div class="cv-col">
+              <div class="cv-card exp">
+                <div class="cv-h"><span class="dot" style="background:var(--purple)"></span> User experience</div>
+                <div class="cv-metrics">
+                  <div>
+                    <div class="cv-m-row"><svg class="cv-m-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="cv-m-v">12.54</span></div>
+                    <div class="cv-m-l">Users</div>
+                  </div>
+                  <div>
+                    <div class="cv-m-row"><svg class="cv-m-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 15s1.5-2 4-2 4 2 4 2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="cv-m-v" style="color:var(--orange)">0.48</span></div>
+                    <div class="cv-m-l">Apdex rating</div>
+                  </div>
+                </div>
+                <div class="cv-spark">
+                  <svg viewBox="0 0 220 34" width="220" height="34" class="spark-ua"></svg>
+                  <div><div class="cv-spark-v">128.79<span style="font-size:10px;color:var(--muted)"> /min</span></div><div class="cv-spark-l">User actions</div></div>
+                </div>
+              </div>
+              <div class="cv-card crash">
+                <div class="cv-h"><span class="dot" style="background:var(--red)"></span> Crashes &amp; Errors</div>
+                <div class="cv-metrics">
+                  <div>
+                    <div class="cv-m-row"><svg class="cv-m-ic" viewBox="0 0 24 24" fill="none"><path d="M12 2 2 20h20L12 2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="cv-m-v" style="color:var(--red)">3.96M</span></div>
+                    <div class="cv-m-l">Crash count</div>
+                  </div>
+                  <div>
+                    <div class="cv-m-row"><span class="cv-m-v">94.5<span style="font-size:11px;color:var(--muted)">%</span></span></div>
+                    <div class="cv-m-l">Crash-free users</div>
+                  </div>
+                </div>
+                <div class="cv-spark">
+                  <svg viewBox="0 0 220 34" width="220" height="34" class="spark-crash"></svg>
+                  <div><div class="cv-spark-v">91.74<span style="font-size:10px;color:var(--muted)"> /min</span></div><div class="cv-spark-l">Crash rate</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cv-center">
+              <div class="cv-people">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="9" cy="7" r="3.2" /><circle cx="17" cy="8.5" r="2.4" opacity=".7" />
+                  <path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6Z" />
+                  <path d="M15.5 20c.2-2.6 1.6-4.3 4-4.3 1.4 0 2.6.6 3.4 1.7" opacity=".7" />
+                </svg>
+              </div>
+              <div class="cv-card svc" style="width:100%;padding:11px 13px">
+                <div class="cv-h" style="margin-bottom:8px;padding-bottom:7px"><span class="dot" style="background:var(--green)"></span> Data privacy</div>
+                <div class="privacy-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5l-8-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Active</div>
+              </div>
+            </div>
+
+            <div class="cv-col">
+              <div class="cv-card web">
+                <div class="cv-h"><span class="dot" style="background:var(--blue)"></span> Web requests</div>
+                <div class="cv-metrics">
+                  <div>
+                    <div class="cv-m-row"><svg class="cv-m-ic" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span class="cv-m-v" style="color:var(--blue)">93.52</span></div>
+                    <div class="cv-m-l">Web requests</div>
+                  </div>
+                  <div>
+                    <div class="cv-m-row"><svg class="cv-m-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="cv-m-v">1.4<span style="font-size:11px;color:var(--muted)">%</span></span></div>
+                    <div class="cv-m-l">Error rate</div>
+                  </div>
+                </div>
+                <div class="cv-spark" style="margin-top:18px">
+                  <svg viewBox="0 0 220 34" width="220" height="34" class="spark-web"></svg>
+                </div>
+              </div>
+              <div class="cv-card svc">
+                <div class="cv-h"><span class="dot" style="background:var(--teal)"></span> Called services <span style="margin-left:auto;color:var(--text);text-transform:none;letter-spacing:0;font-size:11px">6 Services</span></div>
+                <div class="svc-row"><span class="d"></span> Customer Frontend <span class="rt">130 ms</span></div>
+                <div class="svc-row"><span class="d"></span> Iconography <span class="rt">42 ms</span></div>
+                <div class="svc-row"><span class="d"></span> EasyTravel Webserver <span class="rt">88 ms</span></div>
+                <div style="margin-top:8px"><a class="view-link" style="font-size:10.5px;cursor:pointer" onclick="openServices()">View all 6 services →</a></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ░░ KPI STRIP ░░ -->
+          <div class="sec-h" style="margin-top:22px">
+            <span class="sec-h-t">Key Metrics</span>
+            <span class="sec-h-s">Selected timeframe totals</span>
+          </div>
+          <div class="kpi-strip">
+            <div class="kpi"><div class="kpi-l">Total Sessions</div><div class="kpi-v">11</div></div>
+            <div class="kpi"><div class="kpi-l">Total Views</div><div class="kpi-v">168</div></div>
+            <div class="kpi"><div class="kpi-l">Total Error</div><div class="kpi-v">58</div></div>
+            <div class="kpi"><div class="kpi-l">Sessions with Error</div><div class="kpi-v">48</div></div>
+            <div class="kpi"><div class="kpi-l">Apdex Rating</div><div class="kpi-v green">0.92</div></div>
+          </div>
+
+          <!-- ░░ CHART VIEW ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Usage Trends</span>
+            <span class="sec-h-s">Chart view</span>
+          </div>
+          <div class="cards">
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">User actions and Users</span></div>
+              <div class="card-sub">Compares number of user actions to active users over time.</div>
+              <svg class="chart" viewBox="0 0 860 150" preserveAspectRatio="none" id="ch-ua"></svg>
+              <div class="legend"><span class="lg"><span class="lg-dot" style="background:#b388e0"></span> User actions</span><span class="lg"><span class="lg-dot" style="background:#5b2a8c"></span> Users</span></div>
+            </div>
+            <div class="cards c2">
+              <div class="card">
+                <div class="card-h"><span class="card-h-t">New users</span></div>
+                <div class="card-sub">New users acquired during selected timeframe.</div>
+                <svg class="chart" viewBox="0 0 420 150" preserveAspectRatio="none" id="ch-nu"></svg>
+              </div>
+              <div class="card">
+                <div class="card-h"><span class="card-h-t">App version distribution</span></div>
+                <div class="card-sub">Shows how quickly users adopt your app versions.</div>
+                <svg class="chart" viewBox="0 0 420 150" preserveAspectRatio="none" id="ch-ver"></svg>
+                <div class="legend">
+                  <span class="lg"><span class="lg-dot" style="background:#5b2a8c"></span> 1.0</span>
+                  <span class="lg"><span class="lg-dot" style="background:#f5c400"></span> 1.0.1</span>
+                  <span class="lg"><span class="lg-dot" style="background:#14b8a6"></span> 1.0.2</span>
+                  <span class="lg"><span class="lg-dot" style="background:#b388e0"></span> 1.2</span>
+                  <span class="lg"><span class="lg-dot" style="background:#f47c22"></span> 2.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ░░ CALLED SERVICES ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Called Services</span>
+            <span class="sec-h-s">Top services by request volume · click a service to drill into details</span>
+            <span class="sec-h-sp"></span>
+            <a class="sec-btn" onclick="openServices()"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> View all 6</a>
+          </div>
+          <div class="tbl-card">
+            <table>
+              <thead><tr><th>Service</th><th>Type</th><th class="num">Requests</th><th class="num">Response time</th><th class="num">Failure rate</th><th class="num">Throughput</th></tr></thead>
+              <tbody id="svc-body"></tbody>
+            </table>
+          </div>
+
+          <!-- ░░ TIME CONSUMED / TOP ACTIONS ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Time consumed</span>
+            <span class="sec-h-s">Top actions based on total Time consumed (Duration and Actions/min) · click to open details</span>
+          </div>
+          <div class="card">
+            <div class="ta-row" onclick="openAction('Display of SettingsController')">
+              <div class="ta-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <div class="ta-main">
+                <div class="ta-nm">Display of SettingsController</div>
+                <div class="ta-bar-wrap"><span class="ta-bar-lbl">Time consumed</span><span class="ta-bar"><i style="width:92%"></i></span></div>
+              </div>
+              <div class="ta-act"><div class="ta-act-v">10.60</div><div class="ta-act-l">Actions /min</div></div>
+            </div>
+            <div class="ta-row" onclick="openAction('Display of CashierActivity')">
+              <div class="ta-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <div class="ta-main">
+                <div class="ta-nm">Display of CashierActivity</div>
+                <div class="ta-bar-wrap"><span class="ta-bar-lbl">Time consumed</span><span class="ta-bar"><i style="width:38%"></i></span></div>
+              </div>
+              <div class="ta-act"><div class="ta-act-v">37.81</div><div class="ta-act-l">Actions /min</div></div>
+            </div>
+            <div class="ta-row" onclick="openAction('Display of SearchActivity')">
+              <div class="ta-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+              <div class="ta-main">
+                <div class="ta-nm">Display of SearchActivity</div>
+                <div class="ta-bar-wrap"><span class="ta-bar-lbl">Time consumed</span><span class="ta-bar"><i style="width:23%"></i></span></div>
+              </div>
+              <div class="ta-act"><div class="ta-act-v">10.61</div><div class="ta-act-l">Actions /min</div></div>
+            </div>
+          </div>
+
+          <!-- ░░ CRASHES & ERRORS ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Crashes &amp; Errors</span>
+            <span class="sec-h-s">By app version</span>
+          </div>
+          <div class="cards c2">
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">Crashes by version</span><span class="card-h-sp"></span><a class="sec-btn teal" href="action-performance.html">Analyze crashes</a></div>
+              <div class="card-sub">Total number of crashes by version during selected time period.</div>
+              <svg class="chart" viewBox="0 0 420 150" preserveAspectRatio="none" id="ch-cv"></svg>
+            </div>
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">Reported errors by version</span><span class="card-h-sp"></span><a class="sec-btn teal" href="action-performance.html">Analyze errors</a></div>
+              <div class="card-sub">Total number of reported errors by version.</div>
+              <svg class="chart" viewBox="0 0 420 150" preserveAspectRatio="none" id="ch-ev"></svg>
+            </div>
+          </div>
+
+          <!-- ░░ AVAILABILITY + DATA PRIVACY ░░ -->
+          <div class="cards c2" style="margin-top:12px">
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">95% Availability</span><span class="card-h-sp"></span><a class="sec-btn">View monitors →</a></div>
+              <div class="avail-top" style="margin-top:10px">
+                <div class="avail-stat"><div class="v">1</div><div class="l">Synthetic monitor</div></div>
+                <div class="avail-stat"><div class="v">2</div><div class="l">Locations</div></div>
+                <div class="avail-stat"><div class="v">1d 12h</div><div class="l">Total downtime</div></div>
+                <div style="margin-left:auto" class="avail-big">95%</div>
+              </div>
+              <div class="avail-track" id="avail-track"></div>
+              <div class="avail-axis"><span>25. May</span><span>1. Jun</span><span>8. Jun</span><span>15. Jun</span></div>
+              <div class="legend" style="justify-content:flex-start;margin-top:10px">
+                <span class="lg"><span class="lg-dot" style="background:var(--purple-bg);border:1px solid var(--purple)"></span> Available</span>
+                <span class="lg"><span class="lg-dot" style="background:var(--red)"></span> Outage</span>
+                <span class="lg"><span class="lg-dot" style="background:var(--dim)"></span> No data</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-h"><span class="card-h-t">Data privacy</span></div>
+              <div class="card-sub">User opt-in mode lets users choose how much personal data is captured, keeping you compliant with regional privacy regulations.</div>
+              <div class="priv-block">
+                <div class="priv-t">Data collection level</div>
+                <div class="stack-bar">
+                  <i style="width:50%;background:var(--purple-bg)"></i>
+                  <i style="width:12%;background:var(--purple)"></i>
+                  <i style="width:38%;background:#3a1d5c"></i>
+                </div>
+                <div class="stack-leg"><span>■ 50% Off</span><span style="color:var(--purple2)">■ 12% Anonymous</span><span>■ 38% User behavior</span></div>
+              </div>
+              <div class="priv-block">
+                <div class="priv-t">Crash reporting</div>
+                <div class="stack-bar">
+                  <i style="width:38%;background:var(--purple-bg)"></i>
+                  <i style="width:28%;background:var(--purple)"></i>
+                  <i style="width:34%;background:#3a1d5c"></i>
+                </div>
+                <div class="stack-leg"><span>■ 38% Not instrumented</span><span style="color:var(--purple2)">■ 28% No</span><span>■ 34% Yes</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ░░ PAGE VIEW PERFORMANCE SUMMARY ░░ -->
+          <div class="sec-h">
+            <span class="sec-h-t">Page View Performance Summary</span>
+            <span class="sec-h-s">Core Web Vitals per view</span>
+            <span class="sec-h-sp"></span>
+            <a class="sec-btn" href="heat-map.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/></svg> Heat Map</a>
+          </div>
+          <div class="tbl-card">
+            <table>
+              <thead><tr><th>View Name</th><th class="num">View Count</th><th>LT</th><th>LCP</th><th>FCP</th><th>CLS</th><th>INP</th></tr></thead>
+              <tbody>
+                <tr><td><a class="view-link">/index.html</a></td><td class="num mono">43</td><td><span class="vital v-poor"><i></i>1.23s</span></td><td><span class="vital v-bad"><i></i>1.23s</span></td><td><span class="vital v-bad"><i></i>2.32s</span></td><td><span class="vital v-good"><i></i>2.32</span></td><td><span class="vital v-good"><i></i>2.32</span></td></tr>
+                <tr><td><a class="view-link">/port.html</a></td><td class="num mono">65</td><td><span class="vital v-poor"><i></i>2.32s</span></td><td><span class="vital v-good"><i></i>0.21s</span></td><td><span class="vital v-good"><i></i>1.23s</span></td><td><span class="vital v-good"><i></i>2.32</span></td><td><span class="vital v-bad"><i></i>2.23s</span></td></tr>
+                <tr><td><a class="view-link">/</a></td><td class="num mono">98</td><td><span class="vital v-good"><i></i>0.21s</span></td><td><span class="vital v-bad"><i></i>2.23s</span></td><td><span class="vital v-good"><i></i>0.21s</span></td><td><span class="vital v-good"><i></i>2.32</span></td><td><span class="vital v-good"><i></i>0.21s</span></td></tr>
+                <tr><td><a class="view-link">/service.html</a></td><td class="num mono">21</td><td><span class="vital v-poor"><i></i>1.23s</span></td><td><span class="vital v-good"><i></i>1.34s</span></td><td><span class="vital v-bad"><i></i>3.23s</span></td><td><span class="vital v-good"><i></i>2.32</span></td><td><span class="vital v-poor"><i></i>1.23s</span></td></tr>
+                <tr><td><a class="view-link">/contact.html</a></td><td class="num mono">32</td><td><span class="vital v-poor"><i></i>1.34s</span></td><td><span class="vital v-bad"><i></i>2.32s</span></td><td><span class="vital v-poor"><i></i>1.34s</span></td><td><span class="vital v-good"><i></i>2.32</span></td><td><span class="vital v-poor"><i></i>1.34s</span></td></tr>
+                <tr><td><a class="view-link">/about.html</a></td><td class="num mono">43</td><td><span class="vital v-poor"><i></i>1.23s</span></td><td><span class="vital v-good"><i></i>1.23s</span></td><td><span class="vital v-poor"><i></i>1.23s</span></td><td><span class="vital v-good"><i></i>2.32</span></td><td><span class="vital v-poor"><i></i>1.23s</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ DRAWER: SERVICE DETAILS ░░ -->
+  <div class="drawer-ov" id="ov-svc" onclick="closeDrawer()"></div>
+  <div class="drawer" id="dr-svc">
+    <div class="drawer-hd">
+      <div class="drawer-hd-ic" style="background:var(--teal2);color:var(--teal)"><svg viewBox="0 0 24 24" fill="none"><path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+      <div><div class="drawer-hd-t" id="svc-title">Customer Frontend</div><div class="drawer-hd-s">Service details · 1st party · easytravel</div></div>
+      <div class="drawer-x" onclick="closeDrawer()">✕</div>
+    </div>
+    <div class="drawer-bd">
+      <div class="tabbar">
+        <div class="tb on" onclick="svcTab(this,0)">Response time</div>
+        <div class="tb" onclick="svcTab(this,1)">Failure rate</div>
+        <div class="tb" onclick="svcTab(this,2)">Throughput</div>
+      </div>
+      <div style="display:flex;gap:14px;margin-bottom:14px">
+        <div style="display:inline-flex;gap:4px;background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:3px">
+          <span class="mt on">Median</span><span class="mt">Slowest 10%</span><span class="mt">Slowest 5%</span>
+        </div>
+      </div>
+      <div class="dwidget">
+        <svg class="chart" style="height:200px" viewBox="0 0 660 200" preserveAspectRatio="none" id="svc-chart"></svg>
+        <div class="legend" style="justify-content:flex-start" id="svc-leg"><span class="lg"><span class="lg-dot" style="background:#5b6bff"></span> Median response time</span><span class="lg"><span class="lg-dot" style="background:#b388e0"></span> Requests</span></div>
+      </div>
+      <div class="dwidget">
+        <div class="dwidget-t">Analyze requests during last 72 hours · Jun 15 – Today, 11:20</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a class="sec-btn teal">View response time hotspots</a>
+          <a class="sec-btn">Analyze outliers</a>
+          <a class="sec-btn">More…</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ DRAWER: ACTION DETAILS (top action side popup) ░░ -->
+  <div class="drawer-ov" id="ov-act" onclick="closeDrawer()"></div>
+  <div class="drawer" id="dr-act">
+    <div class="drawer-hd">
+      <div class="drawer-hd-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div><div class="drawer-hd-t" id="act-title">Display of SettingsController</div><div class="drawer-hd-s">User action details</div></div>
+      <div class="drawer-x" onclick="closeDrawer()">✕</div>
+    </div>
+    <div class="drawer-bd">
+      <!-- summary infographic -->
+      <div class="cards c2" style="margin-bottom:18px">
+        <div class="card" style="background:var(--purple-bg);border-color:rgba(140,91,216,.3)">
+          <div style="display:flex;gap:10px;align-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--purple2)"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 15s1.5-2 4-2 4 2 4 2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><div><div style="font-size:16px;font-weight:700;color:var(--text)">0.503 <span style="font-size:11px;color:var(--orange)">(Poor)</span></div><div style="font-size:10px;color:var(--muted)">Apdex rating</div></div></div>
+        </div>
+        <div class="card" style="background:var(--purple-bg);border-color:rgba(140,91,216,.3)">
+          <div style="display:flex;gap:10px;align-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--purple2)"><path d="M12 2a9 9 0 1 0 9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m12 12 5-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><div><div style="font-size:16px;font-weight:700;color:var(--text)">2.94 ms</div><div style="font-size:10px;color:var(--muted)">User action duration · 158 /min actions</div></div></div>
+        </div>
+        <div class="card" style="background:var(--purple-bg);border-color:rgba(140,91,216,.3)">
+          <div style="display:flex;gap:10px;align-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--purple2)"><path d="M4 4h16v12H4z" stroke="currentColor" stroke-width="1.8"/><path d="m4 20 4-4M20 20l-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><div><div style="font-size:16px;font-weight:700;color:var(--text)">12 /min</div><div style="font-size:10px;color:var(--muted)">Reported errors</div></div></div>
+        </div>
+        <div class="card" style="background:var(--purple-bg);border-color:rgba(140,91,216,.3)">
+          <div style="display:flex;gap:10px;align-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--purple2)"><path d="M6 2h9l3 3v17H6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><div><div style="font-size:16px;font-weight:700;color:var(--text)">93.2 /min</div><div style="font-size:10px;color:var(--muted)">Web requests · 20% Error rate</div></div></div>
+        </div>
+      </div>
+
+      <!-- Apdex rating widget -->
+      <div class="dwidget">
+        <div class="dwidget-t">Apdex rating</div>
+        <div class="donut-row">
+          <svg width="120" height="120" viewBox="0 0 120 120" id="act-donut1"></svg>
+          <svg width="110" height="110" viewBox="0 0 120 120" id="act-donut2"></svg>
+          <div class="sat-leg">
+            <span style="color:var(--muted);font-weight:600;margin-bottom:2px">User satisfaction</span>
+            <span><span class="sd" style="background:var(--green)"></span> 70.2 % Satisfied</span>
+            <span><span class="sd" style="background:var(--yellow)"></span> 14.5 % Tolerating</span>
+            <span><span class="sd" style="background:var(--red)"></span> 15.3 % Frustrated</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance widget -->
+      <div class="dwidget">
+        <div class="dwidget-t">Performance</div>
+        <div class="kv"><span class="k">Median user action duration</span><span class="v">2.94 ms</span></div>
+        <div class="kv"><span class="k">Frequency (number of actions)</span><span class="v">158 /min</span></div>
+        <svg class="chart" style="height:140px;margin-top:12px" viewBox="0 0 660 140" preserveAspectRatio="none" id="act-perf"></svg>
+      </div>
+
+      <!-- Top errors widget -->
+      <div class="dwidget">
+        <div class="dwidget-t">Top errors</div>
+        <div class="kv"><span class="k">Reported error rate</span><span class="v">12 errors /min</span></div>
+        <div class="kv" style="margin-bottom:8px"><span class="k">Web request error rate</span><span class="v">7.95 errors /min</span></div>
+        <div class="err-row"><div><div class="err-nm">Unexpected end of input</div><div class="err-cls">java.io.EOFException</div></div><div class="err-fq">10.1 /min</div></div>
+        <div class="err-row"><div><div class="err-nm">Cannot load datapoint from series</div><div class="err-cls">java.lang.NullPointerException</div></div><div class="err-fq">7.62 /min</div></div>
+        <div class="err-row" style="border-bottom:none"><div><div class="err-nm">Uncaught TypeError: Cannot read property "abc" of undefined</div><div class="err-cls">TypeErrorException</div></div><div class="err-fq">0.745 /min</div></div>
+      </div>
+
+      <!-- Web requests widget -->
+      <div class="dwidget">
+        <div class="dwidget-t">Web requests</div>
+        <div class="kv"><span class="k">Requests per minute</span><span class="v">93.2 /min</span></div>
+        <div class="kv"><span class="k">Error rate</span><span class="v">20 %</span></div>
+        <svg class="chart" style="height:130px;margin-top:12px" viewBox="0 0 660 130" preserveAspectRatio="none" id="act-web"></svg>
+        <table style="margin-top:10px">
+          <thead><tr><th>Provider</th><th>Origin</th><th class="num">Requests</th><th class="num">Request time</th><th class="num">Error rate</th></tr></thead>
+          <tbody>
+            <tr><td>dynatrace.com</td><td>1st party</td><td class="num mono">30.4 /min</td><td class="num mono">859 ms</td><td class="num mono">7.57 %</td></tr>
+            <tr><td>google.com</td><td>3rd party</td><td class="num mono">21.4 /min</td><td class="num mono">1.38 s</td><td class="num mono">1.94 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ───── tiny SVG chart helpers ───── */
+    function rng(seed) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
+
+    // sparkline bars
+    function sparkBars(sel, n, color, seed) {
+      const el = document.querySelector(sel); if (!el) return;
+      const r = rng(seed); const w = 220, h = 34, bw = w / n;
+      let out = '';
+      for (let i = 0; i < n; i++) { const bh = 4 + r() * 28; out += `<rect x="${i * bw + 1}" y="${h - bh}" width="${bw - 2}" height="${bh}" rx="1" fill="${color}"/>`; }
+      el.innerHTML = out;
+    }
+    sparkBars('.spark-ua', 30, '#b388e0', 7);
+    sparkBars('.spark-crash', 30, 'rgba(224,80,80,.65)', 13);
+
+    // web sparkline (line)
+    (function () {
+      const el = document.querySelector('.spark-web'); if (!el) { return }
+      const r = rng(21); let pts = [], n = 26;
+      for (let i = 0; i < n; i++) pts.push([i * (220 / (n - 1)), 30 - r() * 26]);
+      el.innerHTML = `<polyline fill="none" stroke="#008cff" stroke-width="1.6" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+    })();
+
+    // grouped bars: user actions + users
+    (function () {
+      const el = document.getElementById('ch-ua'); const r = rng(5); const n = 40, w = 860, h = 150, gw = w / n;
+      let out = '';
+      for (let i = 0; i < n; i++) {
+        const a = 25 + r() * 110, u = 18 + r() * 70;
+        out += `<rect x="${i * gw + 2}" y="${h - a}" width="${gw / 2 - 1.5}" height="${a}" fill="#b388e0"/>`;
+        out += `<rect x="${i * gw + gw / 2}" y="${h - u}" width="${gw / 2 - 1.5}" height="${u}" fill="#5b2a8c"/>`;
+      }
+      el.innerHTML = out;
+    })();
+
+    // new users bars
+    (function () {
+      const el = document.getElementById('ch-nu'); const r = rng(9); const n = 40, w = 420, h = 150, gw = w / n;
+      let out = '';
+      for (let i = 0; i < n; i++) { const v = 10 + r() * 120; out += `<rect x="${i * gw + 1}" y="${h - v}" width="${gw - 2}" height="${v}" fill="#3d1a66"/>`; }
+      el.innerHTML = out;
+    })();
+
+    // version distribution 100% stacked
+    (function () {
+      const el = document.getElementById('ch-ver'); const r = rng(3); const n = 40, w = 420, h = 150, gw = w / n;
+      const cols = ['#5b2a8c', '#f5c400', '#14b8a6', '#b388e0', '#f47c22']; let out = '';
+      for (let i = 0; i < n; i++) {
+        // shift dominant version over time
+        let weights = cols.map((_, k) => { const center = (k / cols.length) * n; return Math.max(0, 1 - Math.abs(i - center) / 12) + r() * .15; });
+        const tot = weights.reduce((a, b) => a + b, 0) || 1; let y = 0;
+        weights.forEach((wt, k) => { const seg = (wt / tot) * h; out += `<rect x="${i * gw + 1}" y="${y}" width="${gw - 2}" height="${seg}" fill="${cols[k]}"/>`; y += seg; });
+      }
+      el.innerHTML = out;
+    })();
+
+    // multi-line crashes/errors by version
+    function multiLine(id, seed) {
+      const el = document.getElementById(id); const cols = ['#5b2a8c', '#f5c400', '#14b8a6', '#b388e0', '#f47c22'];
+      const n = 60, w = 420, h = 150; let out = '';
+      cols.forEach((c, k) => {
+        const r = rng(seed + k * 7); let pts = [];
+        for (let i = 0; i < n; i++) pts.push(`${i * (w / (n - 1))},${20 + r() * 110}`);
+        out += `<polyline fill="none" stroke="${c}" stroke-width="1.1" opacity=".85" points="${pts.join(' ')}"/>`;
+      });
+      el.innerHTML = out;
+    }
+    multiLine('ch-cv', 31); multiLine('ch-ev', 47);
+
+    // availability track
+    (function () {
+      const el = document.getElementById('avail-track');
+      el.innerHTML = '<i style="flex:38"></i><i style="flex:1;background:var(--red)"></i><i style="flex:61"></i>';
+    })();
+
+    // services table
+    const services = [
+      ['Customer Frontend', '1st party', '30.4 /min', '130 ms', '1.2 %', '24 /s'],
+      ['Iconography', '1st party', '12.7 /min', '42 ms', '0.0 %', '9 /s'],
+      ['EasyTravel Webserver', '1st party', '21.4 /min', '88 ms', '2.3 %', '17 /s'],
+      ['CPP_Sample_App_test', '1st party', '18.9 /min', '130 ms', '4.1 %', '14 /s'],
+      ['in_memory_db', 'Database', '15.2 /min', '130 ms', '0.4 %', '11 /s'],
+      ['AuthService', '3rd party', '8.6 /min', '210 ms', '6.5 %', '6 /s'],
+    ];
+    document.getElementById('svc-body').innerHTML = services.map(s =>
+      `<tr style="cursor:pointer" onclick="openServices('${s[0]}')"><td><a class="view-link">${s[0]}</a></td><td style="color:var(--muted)">${s[1]}</td><td class="num mono">${s[2]}</td><td class="num mono">${s[3]}</td><td class="num mono">${s[4]}</td><td class="num mono">${s[5]}</td></tr>`
+    ).join('');
+
+    /* ───── drawers ───── */
+    function lockScroll(l) { document.querySelector('.content').style.overflow = l ? 'hidden' : 'auto'; }
+    function openServices(name) {
+      document.getElementById('svc-title').textContent = name || 'Customer Frontend';
+      document.getElementById('ov-svc').classList.add('open');
+      document.getElementById('dr-svc').classList.add('open');
+      drawSvcChart(0);
+    }
+    function svcTab(node, idx) {
+      node.parentNode.querySelectorAll('.tb').forEach(t => t.classList.remove('on')); node.classList.add('on');
+      drawSvcChart(idx);
+    }
+    function drawSvcChart(mode) {
+      const el = document.getElementById('svc-chart'); const r = rng(11 + mode * 9);
+      const w = 660, h = 200, n = 40; let line = [], bars = '';
+      const lineColor = mode === 1 ? '#5b6bff' : mode === 2 ? '#5b6bff' : '#5b6bff';
+      for (let i = 0; i < n; i++) {
+        const bh = 10 + r() * 120; bars += `<rect x="${i * (w / n) + 2}" y="${h - bh}" width="${w / n - 3}" height="${bh}" fill="#cdb6ec" opacity=".5"/>`;
+        line.push(`${i * (w / (n - 1))},${mode === 2 ? h - 20 : 30 + r() * 120}`);
+      }
+      const lineEl = mode === 2 ? '' : `<polyline fill="none" stroke="${lineColor}" stroke-width="1.8" points="${line.join(' ')}"/>`;
+      el.innerHTML = bars + lineEl;
+      const leg = document.getElementById('svc-leg');
+      leg.innerHTML = mode === 0 ? '<span class="lg"><span class="lg-dot" style="background:#5b6bff"></span> Median response time</span><span class="lg"><span class="lg-dot" style="background:#cdb6ec"></span> Requests</span>'
+        : mode === 1 ? '<span class="lg"><span class="lg-dot" style="background:#5b6bff"></span> Failure rate</span><span class="lg"><span class="lg-dot" style="background:var(--red)"></span> Failed requests</span><span class="lg"><span class="lg-dot" style="background:#cdb6ec"></span> Requests</span>'
+          : '<span class="lg"><span class="lg-dot" style="background:#cdb6ec"></span> Requests</span>';
+    }
+
+    function donut(id, segs) {
+      const el = document.getElementById(id); if (!el) return;
+      const cx = 60, cy = 60, r = 42, sw = 16; let a0 = -Math.PI / 2; let out = '';
+      const tot = segs.reduce((s, x) => s + x.v, 0);
+      segs.forEach(s => {
+        const a1 = a0 + (s.v / tot) * Math.PI * 2;
+        const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0), x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+        const large = (a1 - a0) > Math.PI ? 1 : 0;
+        out += `<path d="M${x0} ${y0} A${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke="${s.c}" stroke-width="${sw}"/>`;
+        a0 = a1;
+      });
+      el.innerHTML = out;
+    }
+
+    function openAction(name) {
+      document.getElementById('act-title').textContent = name;
+      document.getElementById('ov-act').classList.add('open');
+      document.getElementById('dr-act').classList.add('open');
+      donut('act-donut1', [{ v: 50, c: 'var(--orange)' }, { v: 50, c: 'var(--dim)' }]);
+      donut('act-donut2', [{ v: 70.2, c: 'var(--green)' }, { v: 14.5, c: 'var(--yellow)' }, { v: 15.3, c: 'var(--red)' }]);
+      // perf line
+      const pe = document.getElementById('act-perf'); const r = rng(17); let pts = [];
+      for (let i = 0; i < 30; i++) pts.push(`${i * (660 / 29)},${30 + r() * 90}`);
+      pe.innerHTML = `<polyline fill="none" stroke="#5b2a8c" stroke-width="1.8" points="${pts.join(' ')}"/>`;
+      // web line
+      const we = document.getElementById('act-web'); const r2 = rng(23); let p2 = [];
+      for (let i = 0; i < 30; i++) p2.push(`${i * (660 / 29)},${20 + r2() * 90}`);
+      we.innerHTML = `<polyline fill="none" stroke="#5b2a8c" stroke-width="1.8" points="${p2.join(' ')}"/>`;
+    }
+
+    function closeDrawer() {
+      document.querySelectorAll('.drawer,.drawer-ov').forEach(d => d.classList.remove('open'));
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+    document.querySelector('.alert-x').onclick = function () { this.closest('.alert-banner').style.display = 'none'; };
+  </script>
+</body>
+
+</html>
